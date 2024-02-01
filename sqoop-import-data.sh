@@ -2,8 +2,7 @@
 
 echo "Staraing Sqoop Job Automation"
 
-# Re-starting Hadoop Daemons
-stop-all.sh
+# Starting Hadoop Daemons
 start-all.sh
 
 
