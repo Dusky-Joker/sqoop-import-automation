@@ -2,13 +2,16 @@
 
 echo "Staraing Sqoop Job Automation"
 
-# Starting Hadoop Daemons
+# Re-starting Hadoop Daemons
+stop-all.sh
 start-all.sh
 
+# Turning off the safe mode
+hdfs dfsadmin -safemode leave
 
 # In HDFS
 hdfs dfs -rm -r /Data
-hdfs dfs --mkdir /Data
+hdfs dfs -mkdir /Data
 
 # Import data from MySQL to HDFS for UK products
 sqoop import --connect jdbc:mysql://localhost:3306/EcommerceData --username root --password-file file:///home/ubh01/Desktop/Interim\ Project/sqoop.password --table amazon_uk_products --target-dir /Data/UK --mysql-delimiters --direct -m 1
