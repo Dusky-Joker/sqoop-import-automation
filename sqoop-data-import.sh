@@ -4,12 +4,13 @@
 DB_NAME="EcommerceData"
 DB_USER="root"
 HDFS_DIR="/Data"
+LOCAL_DIR="/home/ubh01/Desktop/Interim_Project/output"
+PASSWORD_FILE="/home/ubh01/Desktop/Interim_Project/sqoop.password"
 
 echo "Starting Sqoop Job Automation"
 
-# Re-start Hadoop Daemons
-echo "Restarting Hadoop Daemons..."
-stop-all.sh
+# Start Hadoop Daemons
+echo "Starting Hadoop Daemons..."
 start-all.sh
 
 # Check if Hadoop started successfully
@@ -29,7 +30,7 @@ hdfs dfs -mkdir $HDFS_DIR
 
 # Import data from MySQL to HDFS for UK products
 echo "Importing UK products data..."
-sqoop import --connect jdbc:mysql://localhost:3306/$DB_NAME --username $DB_USER --password-file file:///home/ubh01/Desktop/Interim\ Project/sqoop.password --table amazon_uk_products --target-dir $HDFS_DIR/UK --mysql-delimiters --direct -m 1
+sqoop import --connect jdbc:mysql://localhost:3306/$DB_NAME --username $DB_USER --password-file file://$PASSWORD_FILE --table amazon_uk_products --target-dir $HDFS_DIR/UK --mysql-delimiters --direct -m 1
 
 # Check if Sqoop import was successful
 if [ $? -ne 0 ]; then
@@ -39,7 +40,7 @@ fi
 
 # Import data from MySQL to HDFS for USA products
 echo "Importing USA products data..."
-sqoop import --connect jdbc:mysql://localhost:3306/$DB_NAME --username $DB_USER --password-file file:///home/ubh01/Desktop/Interim\ Project/sqoop.password --table amazon_usa_products --target-dir $HDFS_DIR/USA --mysql-delimiters --direct -m 1
+sqoop import --connect jdbc:mysql://localhost:3306/$DB_NAME --username $DB_USER --password-file file://$PASSWORD_FILE --table amazon_usa_products --target-dir $HDFS_DIR/USA --mysql-delimiters --direct -m 1
 
 # Check if Sqoop import was successful
 if [ $? -ne 0 ]; then
@@ -48,19 +49,19 @@ if [ $? -ne 0 ]; then
 fi
 
 # Check if the local directory exists and remove it
-if [ -d /home/ubh01/Desktop/Interim\ Project/output ]; then
+if [ -d $LOCAL_DIR ]; then
     echo "Removing existing local directory..."
-    rm -r /home/ubh01/Desktop/Interim\ Project/output
+    rm -r $LOCAL_DIR
 fi
 
 # Create a new local directory
 echo "Creating new local directory..."
-mkdir /home/ubh01/Desktop/Interim\ Project/output
+mkdir $LOCAL_DIR
 
 # Get data from HDFS to local file system
 echo "Fetching data from HDFS to local file system..."
-hdfs dfs -get $HDFS_DIR/UK /home/ubh01/Desktop/Interim%20Project/output
-hdfs dfs -get $HDFS_DIR/USA /home/ubh01/Desktop/Interim%20Project/output
+hdfs dfs -get $HDFS_DIR/UK $LOCAL_DIR
+hdfs dfs -get $HDFS_DIR/USA $LOCAL_DIR
 
 # Check if data fetch was successful
 if [ $? -ne 0 ]; then
@@ -69,4 +70,3 @@ if [ $? -ne 0 ]; then
 fi
 
 echo "Sqoop Job Automation completed successfully"
-
